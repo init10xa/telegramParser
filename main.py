@@ -6,9 +6,8 @@ from bs4 import BeautifulSoup as bs
 from telebot import types
 import urllib2
 
-bot = telebot.TeleBot("726058560:AAEcAOI5010UEOx3Xz4waWXpG7sw0BrYwag")
+bot = telebot.TeleBot("SECRET")
 
-# bot.send_message('686197998','Hello!')
 
 
 #####PARSE#####
