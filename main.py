@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import telebot
 import requests
+import re
 from bs4 import BeautifulSoup as bs
 from telebot import types
 import urllib2
@@ -63,20 +64,17 @@ else:
 @bot.message_handler(content_types=["text"])
 def repeat_all_messages(message):
     if message.text == 'Замены'.decode('utf-8'):
+        sendfile(today, message, None)
+        sendfile(tomorrow, message, None)
 
-        data = urllib2.urlopen(today)
-
-        bot.send_document(message.chat.id, data, None, todayText)
-        data = urllib2.urlopen(tomorrow)
-
-        bot.send_document(message.chat.id, data, None, tomorrowText)
         # bot.send_message(message.chat.id, tomorrow)
 
     elif message.text == 'Расписание'.decode('utf-8'):
 
         n = 0
         for sch in schedule:
-            bot.send_message(message.chat.id, schedule[n], None, scheduleText[n])
+            sendfile(schedule[n], message, scheduleText[n])
+            # bot.send_message(message.chat.id, schedule[n], None, scheduleText[n])
             n += 1
 
     markup = types.ReplyKeyboardMarkup(row_width=2)
@@ -87,6 +85,22 @@ def repeat_all_messages(message):
     markup.add(itembtn1, itembtn2)
     bot.reply_to(message, "Выбери:", reply_markup=markup)
     print message.text
+
+
+def sendfile(day, message, text):
+    regData = re.findall("id.+", day)
+    print 'https://drive.google.com/uc?authuser=0&' + regData[0] + '&export=download'
+    data = urllib2.urlopen('https://drive.google.com/uc?authuser=0&' + regData[0] + '&export=download')
+    datatowrite = data.read()
+    with open('/Users/vanec/Downloads/schedule.pdf', 'wb') as f:
+        f.write(datatowrite)
+
+    if day == tomorrow:
+        bot.send_document(message.chat.id, open('/Users/vanec/Downloads/schedule.pdf', 'rb'), None, tomorrowText)
+    elif day == today:
+        bot.send_document(message.chat.id, open('/Users/vanec/Downloads/schedule.pdf', 'rb'), None, todayText)
+    else:
+        bot.send_document(message.chat.id, open('/Users/vanec/Downloads/schedule.pdf', 'rb'), None, text)
 
 
 bot.polling(none_stop=True)
